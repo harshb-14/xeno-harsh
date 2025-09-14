@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  shopifyUrl  String   @unique
+  accessToken String
+  email       String   @unique
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customers      Customer[]
+  products       Product[]
+  orders         Order[]
+  customerEvents CustomerEvent[]
+  webhookLogs    WebhookLog[]
+
+  @@map("tenants")
+}
+
+model Customer {
+  id               String   @id @default(cuid())
+  shopifyId        String
+  email            String?
+  firstName        String?
+  lastName         String?
+  phone            String?
+  totalSpent       Float    @default(0)
+  ordersCount      Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  shopifyCreatedAt DateTime?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@unique([tenantId, shopifyId])
+  @@map("customers")
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  shopifyId        String
+  title            String
+  handle           String?
+  productType      String?
+  vendor           String?
+  status           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  shopifyCreatedAt DateTime?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, shopifyId])
+  @@map("products")
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  shopifyId        String
+  orderNumber      String?
+  email            String?
+  totalPrice       Float
+  subtotalPrice    Float?
+  taxPrice         Float?
+  shippingPrice    Float?
+  financialStatus  String?
+  fulfillmentStatus String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  shopifyCreatedAt DateTime?
+
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  @@unique([tenantId, shopifyId])
+  @@map("orders")
+}
+
+model CustomerEvent {
+  id           String   @id @default(cuid())
+  type         String   // 'cart_abandoned', 'checkout_started', 'product_viewed', 'order_placed'
+  customerEmail String?
+  customerName String?
+  shopifyCustomerId String?
+  value        Float?   
+  products     Json?    
+  metadata     Json?    
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("customer_events")
+}
+
+model WebhookLog {
+  id        String   @id @default(cuid())
+  source    String   
+  eventType String   // 'carts/update', 'checkouts/create', etc.
+  payload   Json     
+  processed Boolean  @default(false)
+  error     String?  
+  createdAt DateTime @default(now())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("webhook_logs")
+}

@@ -1,0 +1,27 @@
+name: Xeno Auto Sync Shopify Data
+
+on:
+  # Run every 6 hours
+  schedule:
+    - cron: '0 */6 * * *'
+  
+  # Allow manual triggering from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Sync Xeno Shopify Data
+        run: |
+          echo "Starting Xeno Shopify data sync..."
+
+          # Call deployed backend API
+          response=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            https://xeno-harsh.up.railway.app/api/sync/auto-sync)
+          
+          echo "Sync response: $response"
+          echo "Shopify data sync completed!"
+  
