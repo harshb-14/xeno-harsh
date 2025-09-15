@@ -5,6 +5,9 @@
 
 *Xeno Harsh is an FDE Assignment 2025, a multi-tenant Shopify analytics and data ingestion platform. It enables store owners to connect their Shopify accounts, sync data, and view actionable insights through a Next.js dashboard. The backend (Node.js/Express) handles authentication, data sync, event tracking, and background jobs using PostgreSQL, Redis, and Bull queue. The frontend provides a clean, interactive UI for dashboards, customer events, and analytics, with secure JWT-based authentication and real-time updates.*
 
+## Full App Flow Inshort
+When an order is placed on the Shopify store, a webhook sends the order data to your backend, which saves it to the database (via Prisma), updates Redis for fast access or queue processing, and then the dashboard fetches and displays this data by querying the backend APIs.
+
 ## Demo Credentials
 
 - **Shopify Store:** [https://xeno-harsh.myshopify.com/](https://xeno-harsh.myshopify.com/)
@@ -17,6 +20,28 @@ You can register your own Shopify store, or use the demo account below:
 
 - **Email:** `harshbhardwajofficial1414@gmail.com`
 - **Password:** `test1234`
+
+## Features Implemented
+- Secure authentication and registration for store owners.
+- Shopify account integration, allowing users to sync their store data.
+- ⁠Real-time dashboard with analytics: order stats, top customers, and customer events.
+- ⁠Background job processing using Bull and Redis for scalable data sync.
+- Webhook endpoints for Shopify events like orders, carts, and checkouts.
+- ⁠Automated sync scheduler using GitHub Actions to keep tenant data up-to-date.
+- Type-safe database operations with Prisma ORM and PostgreSQL.
+- lean, interactive frontend built with Next.js, React, and Tailwind CSS.
+
+## How I Approached the Problem
+I started by designing a clear architecture, separating backend and frontend concerns. The backend uses Express for API routes, Prisma for database access, and Bull for background jobs. I focused on modularity, with helpers for authentication, middleware for JWT protection, and services for business logic.
+
+For the frontend, I used Next.js for server-side rendering and React for UI components. I built reusable hooks and components for authentication, dashboard data, and event handling. Tailwind CSS helped me quickly style the UI for a modern look.
+
+I paid special attention to multi-tenancy, ensuring each store’s data is isolated and secure. Webhooks are verified using HMAC to prevent spoofing, and all sensitive endpoints require JWT authentication.
+
+## Trade-offs I Made
+- I chose Prisma ORM for rapid development and type safety, but it adds some overhead compared to raw SQL.
+- ⁠Automated syncs are handled via GitHub Actions, which is simple for small projects but may not scale for very frequent jobs.
+- ⁠I focused on core features and clean code rather than exhaustive error handling or edge-case coverage, to meet the assignment deadline.
 
 # App Architecture
 
